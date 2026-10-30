@@ -1,0 +1,818 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<title>PDF Squeeze - Comprimi PDF</title>
+<meta name="description" content="Comprimi i tuoi file PDF gratis direttamente nel browser.">
+
+<style>
+:root {
+  --bg: #0b1220;
+  --panel: #121d2e;
+  --text: #f4f7fb;
+  --muted: #9eacc0;
+  --line: #28384f;
+  --accent: #8b9cff;
+  --green: #6ee7c2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: radial-gradient(ellipse at 50% -20%, #26365c, transparent 48%), var(--bg);
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  width: min(850px, calc(100% - 30px));
+  margin: auto;
+  padding: 40px 0;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 45px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #8b9cff, #6ee7c2);
+  color: #101827;
+  font-size: 23px;
+  font-weight: bold;
+}
+
+.brand {
+  font-size: 21px;
+  font-weight: bold;
+}
+
+.brand span {
+  color: var(--green);
+}
+
+.eyebrow {
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: clamp(35px, 7vw, 55px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin: 12px 0;
+}
+
+.intro {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 23px;
+  box-shadow: 0 20px 60px #0004;
+}
+
+.drop-zone {
+  border: 2px dashed #536887;
+  border-radius: 17px;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 25px;
+  transition: .2s;
+}
+
+.drop-zone.drag {
+  border-color: var(--green);
+  background: #1a3040;
+}
+
+.upload-icon {
+  font-size: 35px;
+  margin-bottom: 10px;
+}
+
+.drop-zone strong {
+  font-size: 18px;
+}
+
+.drop-zone p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+button, .file-label {
+  border: none;
+  border-radius: 11px;
+  padding: 13px 18px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover, .file-label:hover {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.primary {
+  background: var(--accent);
+  color: #101827;
+}
+
+.secondary {
+  background: #263750;
+  color: white;
+}
+
+.file-label {
+  display: inline-block;
+  background: var(--accent);
+  color: #101827;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  margin-top: 15px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #0f1928;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.file-size {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.remove {
+  background: transparent;
+  color: white;
+  font-size: 22px;
+}
+
+.settings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 22px;
+}
+
+.field {
+  background: #0f1928;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+select {
+  width: 100%;
+  background: #1b2a40;
+  border: 1px solid #3a4b65;
+  color: white;
+  border-radius: 9px;
+  padding: 11px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.actions .primary {
+  flex: 1;
+}
+
+.status {
+  display: none;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #0f1928;
+  border: 1px solid var(--line);
+}
+
+.status.show {
+  display: block;
+}
+
+.progress {
+  height: 7px;
+  background: #263750;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress div {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width .2s;
+}
+
+.result {
+  display: none;
+  margin-top: 20px;
+  padding: 18px;
+  background: #102b2a;
+  border: 1px solid #286b5d;
+  border-radius: 15px;
+}
+
+.result.show {
+  display: block;
+}
+
+.result strong {
+  color: var(--green);
+}
+
+.metrics {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+.metric small {
+  display: block;
+  color: var(--muted);
+}
+
+.metric b {
+  font-size: 20px;
+}
+
+.download {
+  background: var(--green);
+  color: #0c201d;
+  width: 100%;
+}
+
+.notice {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #2b271d;
+  border: 1px solid #665632;
+  color: #e8d8aa;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.privacy {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 18px;
+}
+
+footer {
+  color: #718199;
+  text-align: center;
+  margin-top: 30px;
+  font-size: 12px;
+}
+
+@media(max-width:600px) {
+  .settings {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="container">
+
+<header>
+  <div class="logo">P</div>
+  <div class="brand">PDF <span>SQUEEZE</span></div>
+</header>
+
+<div class="eyebrow">Semplice · Veloce · Privato</div>
+
+<h1>PDF più leggeri.<br>In pochi secondi.</h1>
+
+<p class="intro">
+Riduci le dimensioni dei tuoi documenti direttamente nel browser.
+I tuoi file non vengono caricati su un server.
+</p>
+
+<section class="panel">
+
+<div class="drop-zone" id="dropZone">
+
+<div class="upload-icon">↑</div>
+
+<strong>Trascina qui il tuo PDF</strong>
+
+<p>Oppure scegli un file dal tuo dispositivo</p>
+
+<label class="file-label" for="fileInput">
+Seleziona PDF
+</label>
+
+<input type="file" id="fileInput" accept=".pdf,application/pdf">
+
+</div>
+
+<div class="file-row" id="fileRow" hidden>
+
+<div style="font-size:30px">📄</div>
+
+<div class="file-info">
+<div class="file-name" id="fileName"></div>
+<div class="file-size" id="fileSize"></div>
+</div>
+
+<button class="remove" id="removeFile">×</button>
+
+</div>
+
+<div class="settings">
+
+<div class="field">
+
+<label for="quality">Qualità di compressione</label>
+
+<select id="quality">
+<option value="high">Alta qualità</option>
+<option value="medium" selected>Bilanciata</option>
+<option value="low">Compressione massima</option>
+</select>
+
+<div class="hint" id="qualityHint">
+Equilibrio tra qualità e dimensione.
+</div>
+
+</div>
+
+<div class="field">
+
+<label for="resolution">Risoluzione</label>
+
+<select id="resolution">
+<option value="150">150 DPI - Consigliata</option>
+<option value="110">110 DPI - Più leggera</option>
+<option value="200">200 DPI - Più nitida</option>
+</select>
+
+<div class="hint">
+Una risoluzione inferiore genera file più leggeri.
+</div>
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="primary" id="compressBtn" disabled>
+Comprimi PDF
+</button>
+
+<button class="secondary" id="resetBtn">
+Ricomincia
+</button>
+
+</div>
+
+<div class="status" id="status" aria-live="polite">
+
+<div id="statusText">Preparazione...</div>
+
+<div class="progress">
+<div id="progressBar"></div>
+</div>
+
+</div>
+
+<div class="result" id="result">
+
+<strong>Compressione completata!</strong>
+
+<div class="metrics">
+
+<div class="metric">
+<small>Dimensione originale</small>
+<b id="originalSize">-</b>
+</div>
+
+<div class="metric">
+<small>Dimensione compressa</small>
+<b id="compressedSize">-</b>
+</div>
+
+<div class="metric">
+<small>Risparmio</small>
+<b id="saving">-</b>
+</div>
+
+</div>
+
+<button class="download" id="downloadBtn">
+↓ Scarica PDF compresso
+</button>
+
+</div>
+
+<div class="notice">
+<b>Attenzione:</b> per comprimere il documento, questa versione trasforma le pagine in immagini. Il testo del PDF finale non sarà selezionabile o ricercabile. Link e moduli interattivi non verranno mantenuti. Conserva sempre una copia dell'originale.
+</div>
+
+<div class="privacy">
+🔒 I tuoi documenti vengono elaborati direttamente nel browser.
+</div>
+
+</section>
+
+<footer>
+PDF Squeeze · Strumento gratuito
+</footer>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+let selectedFile = null;
+let outputBlob = null;
+let outputName = "documento-compresso.pdf";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+function formatBytes(bytes) {
+
+const units = ["B","KB","MB","GB"];
+
+let i = 0;
+
+while(bytes >= 1024 && i < units.length - 1) {
+bytes /= 1024;
+i++;
+}
+
+return bytes.toFixed(2) + " " + units[i];
+
+}
+
+function setFile(file) {
+
+if(!file) return;
+
+if(file.type !== "application/pdf" &&
+!file.name.toLowerCase().endsWith(".pdf")) {
+
+showError("Seleziona un file PDF valido.");
+return;
+
+}
+
+selectedFile = file;
+
+$("fileName").textContent = file.name;
+$("fileSize").textContent = formatBytes(file.size);
+
+$("fileRow").hidden = false;
+$("compressBtn").disabled = false;
+
+$("result").classList.remove("show");
+$("status").classList.remove("show");
+
+}
+
+function clearFile() {
+
+selectedFile = null;
+outputBlob = null;
+
+$("fileInput").value = "";
+$("fileRow").hidden = true;
+$("compressBtn").disabled = true;
+
+$("result").classList.remove("show");
+$("status").classList.remove("show");
+
+}
+
+function showError(message) {
+
+$("status").classList.add("show");
+$("statusText").textContent = message;
+
+}
+
+function updateProgress(percent, message) {
+
+$("status").classList.add("show");
+
+$("statusText").textContent = message;
+
+$("progressBar").style.width = percent + "%";
+
+}
+
+$("fileInput").addEventListener("change", e => {
+setFile(e.target.files[0]);
+});
+
+$("removeFile").addEventListener("click", clearFile);
+
+$("resetBtn").addEventListener("click", clearFile);
+
+const dropZone = $("dropZone");
+
+dropZone.addEventListener("dragover", e => {
+
+e.preventDefault();
+dropZone.classList.add("drag");
+
+});
+
+dropZone.addEventListener("dragleave", () => {
+
+dropZone.classList.remove("drag");
+
+});
+
+dropZone.addEventListener("drop", e => {
+
+e.preventDefault();
+
+dropZone.classList.remove("drag");
+
+setFile(e.dataTransfer.files[0]);
+
+});
+
+$("quality").addEventListener("change", () => {
+
+const hints = {
+
+high: "Mantiene più dettagli, ma il file sarà più grande.",
+
+medium: "Equilibrio tra qualità e dimensione.",
+
+low: "Riduce maggiormente il peso, ma perde dettagli."
+
+};
+
+$("qualityHint").textContent =
+hints[$("quality").value];
+
+});
+
+$("compressBtn").addEventListener("click", compressPdf);
+
+async function compressPdf() {
+
+if(!selectedFile) return;
+
+$("compressBtn").disabled = true;
+
+$("result").classList.remove("show");
+
+try {
+
+const quality = $("quality").value;
+
+const dpi = Number($("resolution").value);
+
+const scale = dpi / 72;
+
+const jpegQuality =
+quality === "high" ? 0.86 :
+quality === "medium" ? 0.68 : 0.48;
+
+const data = await selectedFile.arrayBuffer();
+
+const pdf = await pdfjsLib.getDocument({
+data
+}).promise;
+
+const { jsPDF } = window.jspdf;
+
+let output = null;
+
+for(let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+
+updateProgress(
+Math.round(((pageNo - 1) / pdf.numPages) * 100),
+"Elaborazione pagina " + pageNo + " di " + pdf.numPages
+);
+
+const page = await pdf.getPage(pageNo);
+
+const viewport = page.getViewport({
+scale: scale
+});
+
+const canvas = document.createElement("canvas");
+
+const context = canvas.getContext("2d", {
+alpha: false
+});
+
+canvas.width = Math.ceil(viewport.width);
+canvas.height = Math.ceil(viewport.height);
+
+await page.render({
+canvasContext: context,
+viewport: viewport
+}).promise;
+
+const image = canvas.toDataURL(
+"image/jpeg",
+jpegQuality
+);
+
+const widthMm = viewport.width * 25.4 / dpi;
+const heightMm = viewport.height * 25.4 / dpi;
+
+if(!output) {
+
+output = new jsPDF({
+orientation: widthMm > heightMm ? "landscape" : "portrait",
+unit: "mm",
+format: [widthMm, heightMm],
+compress: true
+});
+
+} else {
+
+output.addPage(
+[widthMm, heightMm],
+widthMm > heightMm ? "landscape" : "portrait"
+);
+
+}
+
+output.addImage(
+image,
+"JPEG",
+0,
+0,
+widthMm,
+heightMm,
+undefined,
+"FAST"
+);
+
+canvas.width = 1;
+canvas.height = 1;
+
+updateProgress(
+Math.round((pageNo / pdf.numPages) * 100),
+"Elaborazione pagina " + pageNo + " di " + pdf.numPages
+);
+
+}
+
+updateProgress(100, "Preparazione del file...");
+
+outputBlob = output.output("blob");
+
+const original = selectedFile.size;
+const compressed = outputBlob.size;
+
+const saved = Math.max(
+0,
+(1 - compressed / original) * 100
+);
+
+$("originalSize").textContent = formatBytes(original);
+
+$("compressedSize").textContent = formatBytes(compressed);
+
+$("saving").textContent =
+compressed < original ? saved.toFixed(1) + "%" : "0%";
+
+$("result").classList.add("show");
+
+$("statusText").textContent =
+compressed < original
+? "Il tuo PDF è pronto!"
+: "Il nuovo PDF non è più piccolo dell'originale.";
+
+outputName =
+selectedFile.name.replace(/\.pdf$/i, "") +
+"-compresso.pdf";
+
+$("downloadBtn").onclick = () => {
+
+const url = URL.createObjectURL(outputBlob);
+
+const a = document.createElement("a");
+
+a.href = url;
+a.download = outputName;
+
+a.click();
+
+setTimeout(() => {
+URL.revokeObjectURL(url);
+}, 1500);
+
+};
+
+} catch(error) {
+
+console.error(error);
+
+showError(
+"Errore durante la compressione. Il PDF potrebbe essere protetto da password o non supportato."
+);
+
+} finally {
+
+$("compressBtn").disabled = !selectedFile;
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
